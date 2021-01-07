@@ -21,7 +21,7 @@ class PubSubController extends GetxController {
     super.onInit();
   }
 
-  final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('https://conf.ai.co.zw:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
@@ -98,27 +98,32 @@ class _PubSubTestViewState extends State<PubSubTestView> {
     return Scaffold(
         appBar: AppBar(title: Text('Meeting Room Test')),
         body: !_started
-            ? ListView(children: [
-                Container(
-                  padding: EdgeInsets.all(10),
-                  child: TextField(
-                    controller: meeting_room,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Enter the Meeting Room ID',
+            ? Center(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                    SizedBox(height: 30.0),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: TextField(
+                            controller: meeting_room,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Enter the Meeting Room ID',
+                            )),
+                      ),
                     ),
-                  ),
-                ),
-                RaisedButton(
-                    child: Text('Join Room'),
-                    onPressed: () {
-                      c.pubsub(meeting_room.text);
-                      setState(() {
-                        _started = !_started;
-                        meeting_room.text = '';
-                      });
-                    }),
-              ])
+                    RaisedButton(
+                        child: Text('Join Room'),
+                        onPressed: () {
+                          c.pubsub(meeting_room.text);
+                          setState(() {
+                            _started = !_started;
+                            meeting_room.text = '';
+                          });
+                        }),
+                  ]))
             : Container(
                 padding: EdgeInsets.all(10.0),
                 child: Obx(() => GridView.builder(

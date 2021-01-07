@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'views/echotest_view.dart';
 import 'views/pubsub_view.dart';
 
 void main() {
@@ -21,7 +20,7 @@ class Home extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           RaisedButton(
-              child: Text('Meeting Room'),
+              child: Text('Meeting Demo'),
               onPressed: () {
                 Get.to(PubSubTestView(), transition: Transition.rightToLeft);
               }),
