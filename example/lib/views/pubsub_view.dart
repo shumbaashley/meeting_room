@@ -21,7 +21,7 @@ class PubSubController extends GetxController {
     super.onInit();
   }
 
-  final ion.Signal _signal = ion.JsonRPCSignal('https://conf.ai.co.zw:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('https://conf.ai.co.zw/');
   ion.Client _client;
   ion.LocalStream _localStream;
 
