@@ -98,16 +98,27 @@ class _PubSubTestViewState extends State<PubSubTestView> {
     return Scaffold(
         appBar: AppBar(title: Text('Meeting Room Test')),
         body: !_started
-            ? Container(
-                padding: EdgeInsets.all(10),
-                child: TextField(
-                  controller: meeting_room,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Enter the Meeting Room ID',
+            ? ListView(children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  child: TextField(
+                    controller: meeting_room,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter the Meeting Room ID',
+                    ),
                   ),
                 ),
-              )
+                RaisedButton(
+                    child: Text('Join Room'),
+                    onPressed: () {
+                      c.pubsub(meeting_room.text);
+                      setState(() {
+                        _started = !_started;
+                        meeting_room.text = '';
+                      });
+                    }),
+              ])
             : Container(
                 padding: EdgeInsets.all(10.0),
                 child: Obx(() => GridView.builder(
