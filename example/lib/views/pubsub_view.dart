@@ -58,6 +58,17 @@ class PubSubController extends GetxController {
       _client = null;
     }
   }
+
+  void _closeLocalStream(PubSubController psc) async {
+    await psc._localStream.unpublish();
+    psc._localStream.stream.getTracks().forEach((element) {
+      element.dispose();
+    });
+    await psc._localStream.stream.dispose();
+    psc._localStream = null;
+    psc._client.close();
+    psc._client = null;
+  }
 }
 
 class PubSubTestView extends StatefulWidget {
@@ -116,14 +127,8 @@ class _PubSubTestViewState extends State<PubSubTestView> {
             backgroundColor: Colors.red,
             child: Icon(Icons.call_end),
             onPressed: () async {
-              await c._localStream.unpublish();
-              c._localStream.stream.getTracks().forEach((element) {
-                element.dispose();
-              });
-              await c._localStream.stream.dispose();
-              c._localStream = null;
-              c._client.close();
-              c._client = null;
+              // _closeRemoteStream(c);
+              c._closeLocalStream(c);
               Navigator.push(
                 context,
                 MaterialPageRoute(
