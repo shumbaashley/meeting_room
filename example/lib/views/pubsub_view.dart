@@ -16,12 +16,12 @@ class PubSubController extends GetxController {
   List<Participant> plist = <Participant>[].obs;
   String room;
 
-  final _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  final _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   final Random _rnd = Random();
 
   String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   //  getRandomString(10);
 
@@ -48,15 +48,14 @@ class PubSubController extends GetxController {
           var renderer = RTCVideoRenderer();
           await renderer.initialize();
           renderer.srcObject = remoteStream.stream;
-          plist.add(
-              Participant('Remote', renderer, remoteStream.stream ));
+          plist.add(Participant('Remote', renderer, remoteStream.stream));
         }
       };
 
       var renderer = RTCVideoRenderer();
       await renderer.initialize();
       renderer.srcObject = _localStream.stream;
-      plist.add(Participant('Local', renderer, _localStream.stream ));
+      plist.add(Participant('Local', renderer, _localStream.stream));
     } else {
       await _localStream.unpublish();
       _localStream.stream.getTracks().forEach((element) {
@@ -67,6 +66,17 @@ class PubSubController extends GetxController {
       _client.close();
       _client = null;
     }
+  }
+
+  void _leave() async {
+    await _localStream.unpublish();
+    _localStream.stream.getTracks().forEach((element) {
+      element.dispose();
+    });
+    await _localStream.stream.dispose();
+    _localStream = null;
+    _client.close();
+    _client = null;
   }
 }
 
@@ -118,6 +128,7 @@ class _PubSubTestViewState extends State<PubSubTestView> {
                       child: Padding(
                         padding: EdgeInsets.all(10),
                         child: TextFormField(
+                            // ignore: missing_return
                             validator: (String value) {
                               if (value.isEmpty) {
                                 return 'Please enter the meeting room id';
@@ -155,14 +166,17 @@ class _PubSubTestViewState extends State<PubSubTestView> {
                     itemBuilder: (BuildContext context, int index) {
                       return getItemView(c.plist[index]);
                     }))),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.video_call),
+        floatingActionButtonLocation: _started ? FloatingActionButtonLocation.centerFloat : null,
+        floatingActionButton:_started ? FloatingActionButton(
+            backgroundColor: Colors.red,
+            child: Icon(Icons.call_end),
             onPressed: () {
               c.pubsub(meeting_room.text);
               setState(() {
                 _started = !_started;
                 meeting_room.text = '';
               });
-            }));
+              c._leave();
+            }) : null);
   }
 }
