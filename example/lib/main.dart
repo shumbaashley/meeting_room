@@ -7,6 +7,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(GetMaterialApp(
     home: Home(),
+    debugShowCheckedModeBanner: false
   ));
 }
 
@@ -20,7 +21,12 @@ class Home extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           RaisedButton(
-              child: Text('Meeting Demo'),
+              child: Text('Create Meeting'),
+              onPressed: () {
+                Get.to(PubSubTestView(), transition: Transition.rightToLeft);
+              }),
+          RaisedButton(
+              child: Text('Join Room'),
               onPressed: () {
                 Get.to(PubSubTestView(), transition: Transition.rightToLeft);
               }),

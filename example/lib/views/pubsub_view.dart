@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:math';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_ion/flutter_ion.dart' as ion;
 
 class Participant {
-  Participant(this.title, this.renderer, this.stream, this.room);
+  Participant(this.title, this.renderer, this.stream);
   MediaStream stream;
   String title;
-  String room;
   RTCVideoRenderer renderer;
 }
 
 class PubSubController extends GetxController {
   List<Participant> plist = <Participant>[].obs;
+  String room;
+
+  final _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  final Random _rnd = Random();
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+    length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+
+  //  getRandomString(10);
 
   @override
   @mustCallSuper
@@ -21,13 +31,13 @@ class PubSubController extends GetxController {
     super.onInit();
   }
 
-  final ion.Signal _signal = ion.JsonRPCSignal('https://conf.ai.co.zw/');
+  final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
-  void pubsub(String sessionID) async {
+  void pubsub(String roomID) async {
     if (_client == null) {
-      _client = await ion.Client.create(sid: sessionID, signal: _signal);
+      _client = await ion.Client.create(sid: roomID, signal: _signal);
       _localStream = await ion.LocalStream.getUserMedia(
           constraints: ion.Constraints.defaults..simulcast = false);
       await _client.publish(_localStream);
@@ -39,14 +49,14 @@ class PubSubController extends GetxController {
           await renderer.initialize();
           renderer.srcObject = remoteStream.stream;
           plist.add(
-              Participant('Remote', renderer, remoteStream.stream, sessionID));
+              Participant('Remote', renderer, remoteStream.stream ));
         }
       };
 
       var renderer = RTCVideoRenderer();
       await renderer.initialize();
       renderer.srcObject = _localStream.stream;
-      plist.add(Participant('Local', renderer, _localStream.stream, sessionID));
+      plist.add(Participant('Local', renderer, _localStream.stream ));
     } else {
       await _localStream.unpublish();
       _localStream.stream.getTracks().forEach((element) {
@@ -67,7 +77,7 @@ class PubSubTestView extends StatefulWidget {
 
 class _PubSubTestViewState extends State<PubSubTestView> {
   final PubSubController c = Get.put(PubSubController());
-
+  final _formKey = GlobalKey<FormState>();
   TextEditingController meeting_room = TextEditingController();
 
   bool _started = false;
@@ -80,7 +90,7 @@ class _PubSubTestViewState extends State<PubSubTestView> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                '${item.title}:\n${item.stream.id}@${item.room}',
+                '${item.title}:\n${item.stream.id}',
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
             ),
@@ -103,10 +113,16 @@ class _PubSubTestViewState extends State<PubSubTestView> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                     SizedBox(height: 30.0),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      child: Center(
-                        child: TextField(
+                    Form(
+                      key: _formKey,
+                      child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: TextFormField(
+                            validator: (String value) {
+                              if (value.isEmpty) {
+                                return 'Please enter the meeting room id';
+                              }
+                            },
                             controller: meeting_room,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
@@ -117,11 +133,13 @@ class _PubSubTestViewState extends State<PubSubTestView> {
                     RaisedButton(
                         child: Text('Join Room'),
                         onPressed: () {
-                          c.pubsub(meeting_room.text);
-                          setState(() {
-                            _started = !_started;
-                            meeting_room.text = '';
-                          });
+                          if (_formKey.currentState.validate()) {
+                            c.pubsub(meeting_room.text);
+                            setState(() {
+                              _started = !_started;
+                              meeting_room.text = '';
+                            });
+                          }
                         }),
                   ]))
             : Container(
