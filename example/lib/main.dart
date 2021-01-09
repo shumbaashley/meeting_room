@@ -18,39 +18,41 @@ class Home extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-              padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-              child: Row(children: <Widget>[
-                Container(
-                  width: 300.0,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              RaisedButton(
+                onPressed: () {
+                  Get.to(CreateMeeting(), transition: Transition.rightToLeft);
+                },
+                child: Text(
+                  'Create Meeting',
+                  style: TextStyle(color: Colors.white),
                 ),
-                Expanded(
-                    child: RaisedButton(
-                        child: Text('Create Meeting'),
-                        padding: EdgeInsets.all(15.0),
-                        color: Colors.blue,
-                        textColor: Colors.white,
-                        onPressed: () {
-                          Get.to(CreateMeeting(),
-                              transition: Transition.rightToLeft);
-                        })),
-                Container(
-                  width: 150.0,
+                color: Theme.of(context).primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
                 ),
-                Expanded(
-                    child: RaisedButton(
-                        child: Text('Join Room'),
-                        padding: EdgeInsets.all(15.0),
-                        color: Colors.green,
-                        textColor: Colors.white,
-                        onPressed: () {
-                          Get.to(JoinMeeting(),
-                              transition: Transition.rightToLeft);
-                        })),
-                Container(
-                  width: 300.0,
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              RaisedButton(
+                onPressed: () {
+                  Get.to(JoinMeeting(), transition: Transition.rightToLeft);
+                },
+                child: Text(
+                  'Join Meeting',
+                  style: TextStyle(color: Colors.white),
                 ),
-              ]))
+                color: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+            ],
+          ),
         ],
       ));
 }

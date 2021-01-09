@@ -23,27 +23,30 @@ class _JoinMeetingState extends State<JoinMeeting> {
         body: Center(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
               SizedBox(height: 30.0),
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: EdgeInsets.all(10),
-                  child: TextFormField(
-                      autofocus: true,
-                      // ignore: missing_return
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Please enter the meeting room id';
-                        }
-                      },
-                      controller: meeting_room,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Enter the Meeting Room ID',
-                      )),
-                ),
-              ),
+              Container(
+                  width: 0.5 * MediaQuery.of(context).size.width,
+                  child: Form(
+                    key: _formKey,
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: TextFormField(
+                          autofocus: true,
+                          // ignore: missing_return
+                          validator: (String value) {
+                            if (value.isEmpty) {
+                              return 'Please enter the meeting room id';
+                            }
+                          },
+                          controller: meeting_room,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Enter the Meeting Room ID',
+                          )),
+                    ),
+                  )),
               RaisedButton(
                   child: Text('Join Room'),
                   padding: EdgeInsets.all(15.0),
@@ -55,7 +58,8 @@ class _JoinMeetingState extends State<JoinMeeting> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PubSubTestView(meeting_room.text),
+                          builder: (context) =>
+                              PubSubTestView(meeting_room.text),
                         ),
                       );
                     }
