@@ -13,7 +13,7 @@ void main() {
 class Home extends StatelessWidget {
   @override
   Widget build(context) => Scaffold(
-      appBar: AppBar(title: Text('Meeting Room')),
+      appBar: AppBar(title: Text('Pamwe')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,

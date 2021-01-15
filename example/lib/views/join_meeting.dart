@@ -11,6 +11,7 @@ class JoinMeeting extends StatefulWidget {
 }
 
 class _JoinMeetingState extends State<JoinMeeting> {
+  TextEditingController name = TextEditingController();
   TextEditingController meeting_room = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -27,10 +28,27 @@ class _JoinMeetingState extends State<JoinMeeting> {
                 children: [
               SizedBox(height: 30.0),
               Container(
-                  width: 0.5 * MediaQuery.of(context).size.width,
+                  width: 0.3 * MediaQuery.of(context).size.width,
                   child: Form(
                     key: _formKey,
-                    child: Padding(
+                    child: Column(
+                      children : [ Padding(
+                      padding: EdgeInsets.all(10),
+                      child: TextFormField(
+                          autofocus: true,
+                          // ignore: missing_return
+                          validator: (String value) {
+                            if (value.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                          },
+                          controller: name,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Enter your name',
+                          )),
+                    ),
+                    Padding(
                       padding: EdgeInsets.all(10),
                       child: TextFormField(
                           autofocus: true,
@@ -45,7 +63,7 @@ class _JoinMeetingState extends State<JoinMeeting> {
                             border: OutlineInputBorder(),
                             labelText: 'Enter the Meeting Room ID',
                           )),
-                    ),
+                    )]),
                   )),
               RaisedButton(
                   child: Text('Join Room'),
@@ -59,7 +77,7 @@ class _JoinMeetingState extends State<JoinMeeting> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              PubSubTestView(meeting_room.text),
+                              PubSubTestView(meeting_room.text), //name.text
                         ),
                       );
                     }

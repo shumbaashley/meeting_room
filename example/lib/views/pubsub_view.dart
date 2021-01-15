@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_ion/flutter_ion.dart' as ion;
 
 import '../main.dart';
+  // SharedPreferences prefs;
 
 class Participant {
   Participant(this.title, this.renderer, this.stream);
@@ -14,7 +15,7 @@ class Participant {
 }
 
 class PubSubController extends GetxController {
-  List<Participant> plist = <Participant>[].obs;
+  List<Participant> participantList = <Participant>[].obs;
 
   @override
   @mustCallSuper
@@ -22,7 +23,7 @@ class PubSubController extends GetxController {
     super.onInit();
   }
 
-  final ion.Signal _signal = ion.JsonRPCSignal('https://127.0.0.1:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
@@ -39,14 +40,15 @@ class PubSubController extends GetxController {
           var renderer = RTCVideoRenderer();
           await renderer.initialize();
           renderer.srcObject = remoteStream.stream;
-          plist.add(Participant('Remote', renderer, remoteStream.stream));
+          participantList
+              .add(Participant('Remote', renderer, remoteStream.stream));
         }
       };
 
       var renderer = RTCVideoRenderer();
       await renderer.initialize();
       renderer.srcObject = _localStream.stream;
-      plist.add(Participant('Local', renderer, _localStream.stream));
+      participantList.add(Participant('Local', renderer, _localStream.stream));
     } else {
       await _localStream.unpublish();
       _localStream.stream.getTracks().forEach((element) {
@@ -113,14 +115,14 @@ class _PubSubTestViewState extends State<PubSubTestView> {
             padding: EdgeInsets.all(10.0),
             child: Obx(() => GridView.builder(
                 shrinkWrap: true,
-                itemCount: c.plist.length,
+                itemCount: c.participantList.length,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: 5.0,
                     crossAxisSpacing: 5.0,
                     childAspectRatio: 1.0),
                 itemBuilder: (BuildContext context, int index) {
-                  return getItemView(c.plist[index]);
+                  return getItemView(c.participantList[index]);
                 }))),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
