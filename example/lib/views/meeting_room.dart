@@ -23,7 +23,8 @@ class MeetingController extends GetxController {
     super.onInit();
   }
 
-  final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
+  // final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('https://pamwe.co.zw:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
@@ -349,6 +350,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                         color: Colors.white,
                       ),
                       onPressed: () {
+                        // _loginAlert(_room);
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(
@@ -471,6 +473,46 @@ class _MeetingRoomState extends State<MeetingRoom> {
       ),
     );
     _scaffoldkey.currentState.showSnackBar(snackBar);
+  }
+
+  // africom additions
+  _loginAlert(roomID) {
+    showDialog<Null>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Request'),
+          content: Text(
+              // 'There is a login request to enter meeting room ($roomID)\nfrom : ${json["senderName"]}'),
+              'Login reuest from New User'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Accept',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () async {
+                // var client = widget._helper.client;
+
+                // input information to accept participant
+                // client.accepted("roomdev", "uuid");
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
