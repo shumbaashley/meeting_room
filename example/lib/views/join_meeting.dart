@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:ion_flutter_example/views/meeting_room.dart';
 import 'package:ion_flutter_example/views/pubsub_view.dart';
 
 class JoinMeeting extends StatefulWidget {
@@ -77,7 +78,7 @@ class _JoinMeetingState extends State<JoinMeeting> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              PubSubTestView(meeting_room.text), //name.text
+                              MeetingRoom(meeting_room.text), //name.text
                         ),
                       );
                     }

@@ -101,7 +101,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   final String _room;
   _MeetingRoomState(this._room);
 
-  final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('https://pamwe.co.zw:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
@@ -110,7 +110,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   @override
   void initState() {
     super.initState();
-    init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => init());
   }
 
   init() async {
@@ -242,31 +242,27 @@ class _MeetingRoomState extends State<MeetingRoom> {
                         top: 0,
                         bottom: 0,
                         child: Container(
-                          child: Container(
-                              padding: EdgeInsets.all(10.0),
-                              child: Obx(() => GridView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: c.participantList.length,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 3,
-                                          mainAxisSpacing: 5.0,
-                                          crossAxisSpacing: 5.0,
-                                          childAspectRatio: 1.0),
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return getItemView(
-                                        c.participantList[index]);
-                                  }))),
-                        ),
+                            padding: EdgeInsets.all(10.0),
+                            child: Obx(() => GridView.builder(
+                                shrinkWrap: true,
+                                itemCount: c.participantList.length,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 5.0,
+                                        crossAxisSpacing: 5.0,
+                                        childAspectRatio: 1.0),
+                                itemBuilder: (BuildContext context, int index) {
+                                  return getItemView(c.participantList[index]);
+                                }))),
                       ),
                       Positioned(
                         right: 10,
                         top: 48,
                         child: Container(
-                          // child: participantList != null ? getItemView(participantList[0]): Container(),
-                          // child: _buildLocalVideo(orientation),
-                        ),
+                            // child: participantList != null ? getItemView(participantList[0]): Container(),
+                            // child: _buildLocalVideo(orientation),
+                            ),
                       ),
                       Positioned(
                         left: 0,
