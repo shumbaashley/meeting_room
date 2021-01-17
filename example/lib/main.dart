@@ -57,6 +57,7 @@ class Home extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
         child: Icon(Icons.keyboard_arrow_right),
         onPressed: () {
           Get.to(EchoTestView(), transition: Transition.rightToLeft);
