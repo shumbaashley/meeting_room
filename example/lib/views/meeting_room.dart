@@ -323,17 +323,17 @@ class _MeetingRoomState extends State<MeetingRoom> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                          child: SizedBox(
-                            height: 48,
-                            width: 56,
-                            child: Image.asset(
-                              'assets/images/africom.png',
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        //   child: SizedBox(
+                        //     height: 48,
+                        //     width: 56,
+                        //     child: Image.asset(
+                        //       'assets/images/africom.png',
+                        //       fit: BoxFit.contain,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ],
