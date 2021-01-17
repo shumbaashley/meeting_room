@@ -9,8 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 
 class Participant {
-  Participant(this.title, this.renderer, this.stream);
+  Participant(this.displayname, this.title, this.renderer, this.stream);
   MediaStream stream;
+  String displayname;
   String title;
   RTCVideoRenderer renderer;
 }
@@ -25,11 +26,11 @@ class MeetingController extends GetxController {
   }
 
   // final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
-  final ion.Signal _signal = ion.JsonRPCSignal('https://pamwe.co.zw:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('ws://pamwe.co.zw:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
-  void pubsub(String roomID) async {
+  void pubsub(String roomID, String name) async {
     if (_client == null) {
       _client = await ion.Client.create(sid: roomID, signal: _signal);
       _localStream = await ion.LocalStream.getUserMedia(
@@ -49,7 +50,7 @@ class MeetingController extends GetxController {
           // var audioTrack = remoteStream.stream.getAudioTracks()[0];
           // audioTrack.enableSpeakerphone(true);
           participantList
-              .add(Participant('Remote', renderer, remoteStream.stream));
+              .add(Participant(name, 'Remote', renderer, remoteStream.stream));
         }
       };
 
@@ -59,7 +60,8 @@ class MeetingController extends GetxController {
       // enable speaker on start
       var audioTrack = _localStream.stream.getAudioTracks()[0];
       audioTrack.enableSpeakerphone(true);
-      participantList.add(Participant('Local', renderer, _localStream.stream));
+      participantList
+          .add(Participant(name, 'Local', renderer, _localStream.stream));
     } else {
       await _localStream.unpublish();
       _localStream.stream.getTracks().forEach((element) {
@@ -86,10 +88,11 @@ class MeetingController extends GetxController {
 
 class MeetingRoom extends StatefulWidget {
   final String _room;
-  MeetingRoom(this._room);
+  final String _name;
+  MeetingRoom(this._room, [this._name]);
 
   @override
-  _MeetingRoomState createState() => _MeetingRoomState(_room);
+  _MeetingRoomState createState() => _MeetingRoomState(_room, _name);
 }
 
 class _MeetingRoomState extends State<MeetingRoom> {
@@ -109,66 +112,21 @@ class _MeetingRoomState extends State<MeetingRoom> {
 
   String _displayname;
   final String _room;
-  _MeetingRoomState(this._room);
+  _MeetingRoomState(this._room, [this._displayname]);
 
   @override
   void initState() {
     super.initState();
+    _displayname ??= 'Admin';
     WidgetsBinding.instance.addPostFrameCallback((_) => init());
   }
 
   init() async {
-    c.pubsub(_room);
-    prefs = await SharedPreferences.getInstance();
-
-    _displayname = prefs.getString('display_name') ?? 'Administrator';
-    // _room = prefs.getString('room') ?? _room;
-
-    // if (_client == null) {
-    //   _client = await ion.Client.create(sid: _room, signal: _signal);
-    //   _localStream = await ion.LocalStream.getUserMedia(
-    //       constraints: ion.Constraints.defaults..simulcast = false);
-    //   await _client.publish(_localStream);
-
-    //   _client.ontrack = (track, ion.RemoteStream remoteStream) async {
-    //     if (track.kind == 'video') {
-    //       print('ontrack: remote stream => ${remoteStream.id}');
-    //       renderer = RTCVideoRenderer();
-    //       await renderer.initialize();
-    //       renderer.srcObject = remoteStream.stream;
-    //       participantList
-    //           .add(Participant('Remote', renderer, remoteStream.stream));
-    //     }
-    //   };
-
-    //   renderer = RTCVideoRenderer();
-    //   await renderer.initialize();
-    //   renderer.srcObject = _localStream.stream;
-    //   participantList.add(Participant('Local', renderer, _localStream.stream));
-    // } else {
-    //   await _localStream.unpublish();
-    //   _localStream.stream.getTracks().forEach((element) {
-    //     element.dispose();
-    //   });
-    //   await _localStream.stream.dispose();
-    //   _localStream = null;
-    //   _client.close();
-    //   _client = null;
-    // }
+    c.pubsub(_room, _displayname);
   }
 
-  // void _closeLocalStream() async {
-  //   await _localStream.unpublish();
-  //   _localStream.stream.getTracks().forEach((element) {
-  //     element.dispose();
-  //   });
-  //   await _localStream.stream.dispose();
-  //   _localStream = null;
-  //   _client.close();
-  //   _client = null;
-  // }
-
   Widget getItemView(Participant item) {
+    print(item.displayname);
     return Container(
         padding: EdgeInsets.all(10.0),
         child: Column(
@@ -176,7 +134,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
             Expanded(
               child: RTCVideoView(item.renderer,
                   objectFit:
-                      RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
+                      RTCVideoViewObjectFit.RTCVideoViewObjectFitContain),
             ),
           ],
         ));
@@ -196,40 +154,8 @@ class _MeetingRoomState extends State<MeetingRoom> {
         ));
   }
 
-  // Widget _buildLocalVideo(Orientation orientation) {
-  //   if (_localStream != null) {
-  //     return SizedBox(
-  //         width: (orientation == Orientation.portrait)
-  //             ? LOCAL_VIDEO_HEIGHT
-  //             : LOCAL_VIDEO_WIDTH,
-  //         height: (orientation == Orientation.portrait)
-  //             ? LOCAL_VIDEO_WIDTH
-  //             : LOCAL_VIDEO_HEIGHT,
-  //         child: Container(
-  //           decoration: BoxDecoration(
-  //             color: Colors.black87,
-  //             border: Border.all(
-  //               color: Colors.white,
-  //               width: 0.5,
-  //             ),
-  //           ),
-  //           child: GestureDetector(
-  //               // onTap: () {
-  //               //   _switchCamera();
-  //               // },
-  //               // onDoubleTap: () {
-  //               //   _localVideo.switchObjFit();
-  //               // },
-  //               child: RTCVideoView(renderer)),
-  //         ));
-  //   }
-  //   return Container();
-  // }
-
   @override
   Widget build(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
-
     return OrientationBuilder(builder: (context, orientation) {
       return SafeArea(
           child: Scaffold(
@@ -259,40 +185,18 @@ class _MeetingRoomState extends State<MeetingRoom> {
                                 itemCount: c.participantList.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: (orientation ==
-                                                Orientation.portrait)
-                                            ? 2
-                                            : 3),
+                                        crossAxisCount: 3,
+                                        mainAxisSpacing: 5.0,
+                                        crossAxisSpacing: 5.0,
+                                        childAspectRatio: 1.0),
                                 itemBuilder: (BuildContext context, int index) {
                                   return getItemView(c.participantList[index]);
                                 }))),
-                      ),
-                      // Positioned(
-                      //   right: 10,
-                      //   top: 48,
-                      //   child: Container(
-                      //       padding: EdgeInsets.all(10.0),
-                      //       // child: _buildLocalVideo(),
-                      //   )
-                      // ),
-                      // Positioned(
-                      //   left: 0,
-                      //   right: 0,
-                      //   bottom: 48,
-                      //   height: 90,
-                      //   child: Container(
-                      //     margin: EdgeInsets.all(6.0),
-                      //     child: ListView(
-                      //       scrollDirection: Axis.horizontal,
-                      //       // children: //_buildVideoViews(),
-                      //     ),
-                      //   ),
-                      // ),
+                      )
                     ],
                   ),
                 ),
               ),
-              // (_remoteVideos.length == 0) ? _buildLoading() : Container(),
               Positioned(
                 left: 0,
                 right: 0,
@@ -322,19 +226,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        // Padding(
-                        //   padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                        //   child: SizedBox(
-                        //     height: 48,
-                        //     width: 56,
-                        //     child: Image.asset(
-                        //       'assets/images/africom.png',
-                        //       fit: BoxFit.contain,
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
+                      children: <Widget>[],
                     ),
                   ],
                 ),
@@ -360,7 +252,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        _loginAlert(_room);
+                        // _loginAlert(_room);
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(

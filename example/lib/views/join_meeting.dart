@@ -77,7 +77,7 @@ class _JoinMeetingState extends State<JoinMeeting> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              MeetingRoom(meeting_room.text), //name.text
+                              MeetingRoom(meeting_room.text, name.text), //name.text
                         ),
                       );
                     }
