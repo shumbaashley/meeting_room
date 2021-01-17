@@ -301,7 +301,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                 child: Stack(
                   children: <Widget>[
                     Opacity(
-                      opacity: 1.0, // TODO ::: change back
+                      opacity: 1.0, // TODO  change back
                       child: Container(
                         color: Colors.blue,
                       ),
@@ -447,12 +447,12 @@ class _MeetingRoomState extends State<MeetingRoom> {
 
   //Open or close local video
   void _turnCamera() {
-    _showSnackBar(':::Switch camera:::');
+    _showSnackBar('Switch camera');
   }
 
   //Open or close local audio
   void _turnMicrophone() {
-    _showSnackBar(':::Switch audio:::');
+    _showSnackBar('Switch audio');
   }
 
   //Leave current video room
@@ -477,7 +477,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                     onPressed: () {
                       Navigator.of(context).pop();
                       // _cleanUp();
-                      _showSnackBar(':::Call ended:::');
+                      _showSnackBar('Call ended');
                     },
                   )
                 ]));
@@ -485,12 +485,12 @@ class _MeetingRoomState extends State<MeetingRoom> {
 
   //Switch speaker/earpiece
   void _switchSpeaker() {
-    _showSnackBar(':::Switch speaker:::');
+    _showSnackBar('Switch speaker');
   }
 
   //Switch local camera
   void _switchCamera() {
-    _showSnackBar(':::Switch camera:::');
+    _showSnackBar('Switch camera');
   }
 
   // Show snackbar notification
