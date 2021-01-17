@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ion_flutter_example/views/meeting_room.dart';
-import 'package:ion_flutter_example/views/pubsub_view.dart';
+// import 'package:ion_flutter_example/views/pubsub_view.dart';
 import 'dart:math';
 
 final _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';

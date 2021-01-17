@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_ion/flutter_ion.dart' as ion;
 import 'package:ion_flutter_example/widgets/video_renderer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 
@@ -33,6 +34,9 @@ class MeetingController extends GetxController {
       _client = await ion.Client.create(sid: roomID, signal: _signal);
       _localStream = await ion.LocalStream.getUserMedia(
           constraints: ion.Constraints.defaults..simulcast = false);
+      // enable speaker on start
+      // var audioTrack = _localStream.stream.getAudioTracks()[0];
+      // audioTrack.enableSpeakerphone(true);
       await _client.publish(_localStream);
 
       _client.ontrack = (track, ion.RemoteStream remoteStream) async {
@@ -41,6 +45,9 @@ class MeetingController extends GetxController {
           var renderer = RTCVideoRenderer();
           await renderer.initialize();
           renderer.srcObject = remoteStream.stream;
+          // enable speaker on start
+          // var audioTrack = remoteStream.stream.getAudioTracks()[0];
+          // audioTrack.enableSpeakerphone(true);
           participantList
               .add(Participant('Remote', renderer, remoteStream.stream));
         }
@@ -49,6 +56,9 @@ class MeetingController extends GetxController {
       var renderer = RTCVideoRenderer();
       await renderer.initialize();
       renderer.srcObject = _localStream.stream;
+      // enable speaker on start
+      var audioTrack = _localStream.stream.getAudioTracks()[0];
+      audioTrack.enableSpeakerphone(true);
       participantList.add(Participant('Local', renderer, _localStream.stream));
     } else {
       await _localStream.unpublish();
@@ -75,9 +85,6 @@ class MeetingController extends GetxController {
 }
 
 class MeetingRoom extends StatefulWidget {
-  // SharedPreferences prefs;
-  // prefs = await SharedPreferences.getInstance();
-  // name = prefs.getString('display_name') ?? 'Administrator';
   final String _room;
   MeetingRoom(this._room);
 
@@ -91,6 +98,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   List<Participant> participantList = <Participant>[].obs;
 
   VideoRendererAdapter _localVideo;
+  SharedPreferences prefs;
 
   bool _cameraOff = false;
   bool _microphoneOff = false;
@@ -99,14 +107,9 @@ class _MeetingRoomState extends State<MeetingRoom> {
   final double LOCAL_VIDEO_WIDTH = 120.0;
   final double LOCAL_VIDEO_HEIGHT = 64.0;
 
+  String _displayname;
   final String _room;
   _MeetingRoomState(this._room);
-
-  final ion.Signal _signal = ion.JsonRPCSignal('https://pamwe.co.zw:7000/ws');
-  ion.Client _client;
-  ion.LocalStream _localStream;
-
-  RTCVideoRenderer renderer;
 
   @override
   void initState() {
@@ -116,6 +119,11 @@ class _MeetingRoomState extends State<MeetingRoom> {
 
   init() async {
     c.pubsub(_room);
+    prefs = await SharedPreferences.getInstance();
+
+    _displayname = prefs.getString('display_name') ?? 'Administrator';
+    // _room = prefs.getString('room') ?? _room;
+
     // if (_client == null) {
     //   _client = await ion.Client.create(sid: _room, signal: _signal);
     //   _localStream = await ion.LocalStream.getUserMedia(
@@ -149,16 +157,16 @@ class _MeetingRoomState extends State<MeetingRoom> {
     // }
   }
 
-  void _closeLocalStream() async {
-    await _localStream.unpublish();
-    _localStream.stream.getTracks().forEach((element) {
-      element.dispose();
-    });
-    await _localStream.stream.dispose();
-    _localStream = null;
-    _client.close();
-    _client = null;
-  }
+  // void _closeLocalStream() async {
+  //   await _localStream.unpublish();
+  //   _localStream.stream.getTracks().forEach((element) {
+  //     element.dispose();
+  //   });
+  //   await _localStream.stream.dispose();
+  //   _localStream = null;
+  //   _client.close();
+  //   _client = null;
+  // }
 
   Widget getItemView(Participant item) {
     return Container(
@@ -168,7 +176,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
             Expanded(
               child: RTCVideoView(item.renderer,
                   objectFit:
-                      RTCVideoViewObjectFit.RTCVideoViewObjectFitContain),
+                      RTCVideoViewObjectFit.RTCVideoViewObjectFitCover),
             ),
           ],
         ));
@@ -188,38 +196,40 @@ class _MeetingRoomState extends State<MeetingRoom> {
         ));
   }
 
-  Widget _buildLocalVideo(Orientation orientation) {
-    if (_localStream != null) {
-      return SizedBox(
-          width: (orientation == Orientation.portrait)
-              ? LOCAL_VIDEO_HEIGHT
-              : LOCAL_VIDEO_WIDTH,
-          height: (orientation == Orientation.portrait)
-              ? LOCAL_VIDEO_WIDTH
-              : LOCAL_VIDEO_HEIGHT,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              border: Border.all(
-                color: Colors.white,
-                width: 0.5,
-              ),
-            ),
-            child: GestureDetector(
-                // onTap: () {
-                //   _switchCamera();
-                // },
-                // onDoubleTap: () {
-                //   _localVideo.switchObjFit();
-                // },
-                child: RTCVideoView(renderer)),
-          ));
-    }
-    return Container();
-  }
+  // Widget _buildLocalVideo(Orientation orientation) {
+  //   if (_localStream != null) {
+  //     return SizedBox(
+  //         width: (orientation == Orientation.portrait)
+  //             ? LOCAL_VIDEO_HEIGHT
+  //             : LOCAL_VIDEO_WIDTH,
+  //         height: (orientation == Orientation.portrait)
+  //             ? LOCAL_VIDEO_WIDTH
+  //             : LOCAL_VIDEO_HEIGHT,
+  //         child: Container(
+  //           decoration: BoxDecoration(
+  //             color: Colors.black87,
+  //             border: Border.all(
+  //               color: Colors.white,
+  //               width: 0.5,
+  //             ),
+  //           ),
+  //           child: GestureDetector(
+  //               // onTap: () {
+  //               //   _switchCamera();
+  //               // },
+  //               // onDoubleTap: () {
+  //               //   _localVideo.switchObjFit();
+  //               // },
+  //               child: RTCVideoView(renderer)),
+  //         ));
+  //   }
+  //   return Container();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+
     return OrientationBuilder(builder: (context, orientation) {
       return SafeArea(
           child: Scaffold(
@@ -249,35 +259,35 @@ class _MeetingRoomState extends State<MeetingRoom> {
                                 itemCount: c.participantList.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        mainAxisSpacing: 5.0,
-                                        crossAxisSpacing: 5.0,
-                                        childAspectRatio: 1.0),
+                                        crossAxisCount: (orientation ==
+                                                Orientation.portrait)
+                                            ? 2
+                                            : 3),
                                 itemBuilder: (BuildContext context, int index) {
                                   return getItemView(c.participantList[index]);
                                 }))),
                       ),
-                      Positioned(
-                        right: 10,
-                        top: 48,
-                        child: Container(
-                            // child: participantList != null ? getItemView(participantList[0]): Container(),
-                            // child: _buildLocalVideo(orientation),
-                            ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 48,
-                        height: 90,
-                        child: Container(
-                          margin: EdgeInsets.all(6.0),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            // children: //_buildVideoViews(),
-                          ),
-                        ),
-                      ),
+                      // Positioned(
+                      //   right: 10,
+                      //   top: 48,
+                      //   child: Container(
+                      //       padding: EdgeInsets.all(10.0),
+                      //       // child: _buildLocalVideo(),
+                      //   )
+                      // ),
+                      // Positioned(
+                      //   left: 0,
+                      //   right: 0,
+                      //   bottom: 48,
+                      //   height: 90,
+                      //   child: Container(
+                      //     margin: EdgeInsets.all(6.0),
+                      //     child: ListView(
+                      //       scrollDirection: Axis.horizontal,
+                      //       // children: //_buildVideoViews(),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -350,7 +360,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        // _loginAlert(_room);
+                        _loginAlert(_room);
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(
@@ -447,8 +457,30 @@ class _MeetingRoomState extends State<MeetingRoom> {
 
   //Leave current video room
   void _hangUp() {
-    _closeLocalStream();
-    _showSnackBar(':::Call ended:::');
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+                title: Text('Hangup'),
+                content: Text('Are you sure to leave the room?'),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text(
+                      'Hangup',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      // _cleanUp();
+                      _showSnackBar(':::Call ended:::');
+                    },
+                  )
+                ]));
   }
 
   //Switch speaker/earpiece
