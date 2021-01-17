@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ion_flutter_example/views/create_meeting.dart';
+import 'package:ion_flutter_example/views/echotest_view.dart';
 import 'package:ion_flutter_example/views/join_meeting.dart';
 
 import 'views/pubsub_view.dart';
@@ -54,5 +55,11 @@ class Home extends StatelessWidget {
             ],
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.keyboard_arrow_right),
+        onPressed: () {
+          Get.to(EchoTestView(), transition: Transition.rightToLeft);
+        },
       ));
 }
