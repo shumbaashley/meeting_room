@@ -35,9 +35,6 @@ class MeetingController extends GetxController {
       _client = await ion.Client.create(sid: roomID, signal: _signal);
       _localStream = await ion.LocalStream.getUserMedia(
           constraints: ion.Constraints.defaults..simulcast = false);
-      // enable speaker on start
-      // var audioTrack = _localStream.stream.getAudioTracks()[0];
-      // audioTrack.enableSpeakerphone(true);
       await _client.publish(_localStream);
 
       _client.ontrack = (track, ion.RemoteStream remoteStream) async {
@@ -46,9 +43,6 @@ class MeetingController extends GetxController {
           var renderer = RTCVideoRenderer();
           await renderer.initialize();
           renderer.srcObject = remoteStream.stream;
-          // enable speaker on start
-          // var audioTrack = remoteStream.stream.getAudioTracks()[0];
-          // audioTrack.enableSpeakerphone(true);
           participantList
               .add(Participant(name, 'Remote', renderer, remoteStream.stream));
         }
@@ -74,16 +68,6 @@ class MeetingController extends GetxController {
     }
   }
 
-  void _closeLocalStream(MeetingController psc) async {
-    await psc._localStream.unpublish();
-    psc._localStream.stream.getTracks().forEach((element) {
-      element.dispose();
-    });
-    await psc._localStream.stream.dispose();
-    psc._localStream = null;
-    psc._client.close();
-    psc._client = null;
-  }
 }
 
 class MeetingRoom extends StatefulWidget {
@@ -218,7 +202,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: _buildTools(),
+                            children: _buildTools(c._localStream),
                           ),
                         ),
                       ),
@@ -276,7 +260,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   }
 
   //tools
-  List<Widget> _buildTools() {
+  List<Widget> _buildTools(ion.LocalStream _stream) {
     return <Widget>[
       SizedBox(
         width: 48,
@@ -301,7 +285,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                   Icons.mic,
                   color: Colors.white,
                 ),
-          onPressed: _turnMicrophone,
+          onPressed: _turnMicrophone(_stream),
         ),
       ),
       SizedBox(
@@ -343,8 +327,19 @@ class _MeetingRoomState extends State<MeetingRoom> {
   }
 
   //Open or close local audio
-  void _turnMicrophone() {
-    _showSnackBar('Switch audio');
+  void _turnMicrophone(ion.LocalStream _stream) {
+        if (_stream != null && _stream.stream.getAudioTracks().isNotEmpty) {
+      setState(() {
+        _microphoneOff = !_microphoneOff;
+      });
+      _localVideo.stream.getAudioTracks()[0].enabled = !_microphoneOff;;
+
+      if (_microphoneOff) {
+        _showSnackBar('The microphone is muted');
+      } else {
+        _showSnackBar('The microphone is unmuted');
+      }
+    } else {}
   }
 
   //Leave current video room
@@ -355,13 +350,13 @@ class _MeetingRoomState extends State<MeetingRoom> {
                 title: Text('Hangup'),
                 content: Text('Are you sure to leave the room?'),
                 actions: <Widget>[
-                  FlatButton(
+                  TextButton(
                     child: Text('Cancel'),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                   ),
-                  FlatButton(
+                  TextButton(
                     child: Text(
                       'Hangup',
                       style: TextStyle(color: Colors.red),
@@ -386,7 +381,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   }
 
   // Show snackbar notification
-  _showSnackBar(String message) {
+  void _showSnackBar(String message) {
     final snackBar = SnackBar(
       content: Text(
         message,
@@ -400,7 +395,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   }
 
   // africom additions
-  _loginAlert(roomID) {
+  void _loginAlert(roomID) {
     showDialog<Null>(
       context: context,
       barrierDismissible: false,
@@ -411,7 +406,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
               // 'There is a login request to enter meeting room ($roomID)\nfrom : ${json["senderName"]}'),
               'Login reuest from New User'),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text(
                 'Cancel',
                 style: TextStyle(color: Colors.red),
@@ -420,7 +415,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                 Navigator.of(context).pop();
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text(
                 'Accept',
                 style: TextStyle(color: Colors.green),
@@ -440,47 +435,3 @@ class _MeetingRoomState extends State<MeetingRoom> {
   }
 }
 
-// Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-//                 Container(
-//                     padding: EdgeInsets.all(10.0),
-//                     child: Obx(() => GridView.builder(
-//                         shrinkWrap: true,
-//                         itemCount: c.participantList.length,
-//                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//                             crossAxisCount: 3,
-//                             mainAxisSpacing: 5.0,
-//                             crossAxisSpacing: 5.0,
-//                             childAspectRatio: 1.0),
-//                         itemBuilder: (BuildContext context, int index) {
-//                           return getItemView(c.participantList[index]);
-//                         }))),
-//                 Container(
-//                   color: Colors.black,
-//                   child: Center(
-//                     child: Container(
-//                       margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
-//                       height: 60,
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         crossAxisAlignment: CrossAxisAlignment.center,
-//                         children: _buildTools(),
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ])
-// floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-// floatingActionButton: FloatingActionButton(
-// backgroundColor: Colors.red,
-// child: Icon(Icons.call_end),
-// onPressed: () async {
-// _closeRemoteStream(c);
-// c._closeLocalStream(c);
-// c.pubsub(_room);
-// Navigator.push(
-//   context,
-//   MaterialPageRoute(
-//     builder: (context) => Home(),
-//   ),
-// );
-// })
