@@ -26,7 +26,7 @@ class MeetingController extends GetxController {
   }
 
   // final ion.Signal _signal = ion.JsonRPCSignal('ws://127.0.0.1:7000/ws');
-  final ion.Signal _signal = ion.JsonRPCSignal('ws://pamwe.co.zw:7000/ws');
+  final ion.Signal _signal = ion.JsonRPCSignal('wss://pamwe.co.zw:7000/ws');
   ion.Client _client;
   ion.LocalStream _localStream;
 
