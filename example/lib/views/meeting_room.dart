@@ -285,7 +285,9 @@ class _MeetingRoomState extends State<MeetingRoom> {
                   Icons.mic,
                   color: Colors.white,
                 ),
-          onPressed: _turnMicrophone(_stream),
+          onPressed: (){
+            _turnMicrophone(_stream);
+          }
         ),
       ),
       SizedBox(
